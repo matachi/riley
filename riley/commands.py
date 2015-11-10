@@ -3,7 +3,7 @@ import os
 import sys
 from urllib import request
 import feedparser
-from riley.models import Podcast
+from riley.models import Podcast, Storage
 
 
 class BaseCommand:
@@ -29,6 +29,12 @@ class BaseCommand:
         raise NotImplementedError(
             'Subclasses of BaseCommand must provide a handle() method.')
 
+
+class WhereIsConfig(BaseCommand):
+    help = 'Print the path to the config directory.'
+
+    def handle(self):
+        print(Storage().user_data_dir_path)
 
 class ListPodcasts(BaseCommand):
     help = 'Print a list of podcasts.'

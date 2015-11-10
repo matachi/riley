@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 from riley.commands import ListPodcasts, FetchEpisodes, ListEpisodes, Insert, \
-    DownloadEpisodes
+    DownloadEpisodes, WhereIsConfig
 
 
 class ManagementUtility:
@@ -11,6 +11,7 @@ class ManagementUtility:
         'podcasts': ListPodcasts,
         'fetch': FetchEpisodes,
         'download': DownloadEpisodes,
+        'config': WhereIsConfig,
     }
 
     def execute(self, argv):
