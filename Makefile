@@ -6,3 +6,6 @@ devinstall:
 
 clean:
 	rm -r `python3 <<< "from appdirs import user_data_dir; print(user_data_dir('Riley', 'Riley'))"`
+
+test:
+	py.test

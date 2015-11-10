@@ -1,8 +1,8 @@
 import argparse
 import os
 import sys
-from urllib import request
 import feedparser
+from riley import download
 from riley.models import Podcast, Storage
 
 
@@ -91,8 +91,5 @@ class DownloadEpisodes(BaseCommand):
     def handle(self):
         for podcast in Podcast.objects().values():
             for _, _, _, media_href in podcast.episodes:
-                mp3file = request.urlopen(media_href)
-                output = open('test.mp3', 'wb')
-                output.write(mp3file.read())
-                output.close()
+                download.download(media_href, os.getcwd())
                 break
