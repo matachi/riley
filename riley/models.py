@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import csv
 import os
 
 from appdirs import user_data_dir
@@ -38,8 +39,34 @@ class Storage:
         with open(self.config_file_path, 'w') as f:
             f.write(yaml.dump(data, default_flow_style=False))
 
+    def get_episode_history_file_path(self, podcast_name):
+        return os.path.join(
+            self.user_data_dir_path, '%s_history.csv' % podcast_name)
 
-class Podcast(object):
+    def init_episode_history_file(self, podcast_name):
+        with open(self.get_episode_history_file_path(podcast_name), 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(['guid', 'title', 'link', 'media_href'])
+
+    def get_episode_history(self, podcast_name):
+        path = self.get_episode_history_file_path(podcast_name)
+        if not os.path.exists(path):
+            self.init_episode_history_file(podcast_name)
+        with open(path) as f:
+            reader = csv.reader(f)
+            return [row for row in reader][1:]
+
+    def extend_episode_history(self, podcast_name, episodes):
+        path = self.get_episode_history_file_path(podcast_name)
+        if not os.path.exists(path):
+            self.init_episode_history_file(podcast_name)
+        with open(path, 'a') as f:
+            writer = csv.writer(f)
+            for episode in episodes:
+                writer.writerow(episode)
+
+
+class Podcast:
     def __init__(self, name, feed):
         self.name = name
         self.feed = feed
@@ -49,6 +76,13 @@ class Podcast(object):
         data = storage.get_config_data()
         data['podcasts'][self.name] = self.feed
         storage.save_config_data(data)
+
+    @property
+    def episodes(self):
+        return Storage().get_episode_history(self.name)
+
+    def extend_episodes(self, episodes):
+        return Storage().extend_episode_history(self.name, episodes)
 
     @classmethod
     def objects(cls):

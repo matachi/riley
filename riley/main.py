@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 import sys
-from riley.commands import List, Insert, ListPodcasts
+from riley.commands import ListPodcasts, FetchEpisodes, ListEpisodes, Insert, \
+    DownloadEpisodes
 
 
 class ManagementUtility:
     subcommands = {
-        'list': List,
+        'list': ListEpisodes,
         'insert': Insert,
         'podcasts': ListPodcasts,
+        'fetch': FetchEpisodes,
+        'download': DownloadEpisodes,
     }
 
     def execute(self, argv):

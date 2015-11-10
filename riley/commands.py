@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+from urllib import request
+import feedparser
 from riley.models import Podcast
 
 
@@ -28,13 +30,6 @@ class BaseCommand:
             'Subclasses of BaseCommand must provide a handle() method.')
 
 
-class List(BaseCommand):
-    help = 'Print a list of episodes.'
-
-    def handle(self):
-        print('Print episodes')
-
-
 class ListPodcasts(BaseCommand):
     help = 'Print a list of podcasts.'
 
@@ -57,3 +52,41 @@ class Insert(BaseCommand):
             Podcast(name, url).save()
         else:
             sys.exit("The name '%s' is already registered." % name)
+
+
+class ListEpisodes(BaseCommand):
+    help = 'Print a list of episodes.'
+
+    def handle(self):
+        for podcast in Podcast.objects().values():
+            for guid, title, url, media_href in podcast.episodes:
+                print(title, media_href)
+
+
+class FetchEpisodes(BaseCommand):
+    help = 'Fetch episodes.'
+
+    def handle(self):
+        for podcast in Podcast.objects().values():
+            feed = feedparser.parse(podcast.feed)
+            episodes = []
+            for entry in feed.entries:
+                if len(entry.enclosures) == 0:
+                    continue
+                media_href = entry.enclosures[0].href
+                episodes.append(
+                    (entry.guid, entry.title, entry.link, media_href))
+            podcast.extend_episodes(episodes)
+
+
+class DownloadEpisodes(BaseCommand):
+    help = 'Download episodes.'
+
+    def handle(self):
+        for podcast in Podcast.objects().values():
+            for _, _, _, media_href in podcast.episodes:
+                mp3file = request.urlopen(media_href)
+                output = open('test.mp3', 'wb')
+                output.write(mp3file.read())
+                output.close()
+                break
