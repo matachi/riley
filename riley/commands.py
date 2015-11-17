@@ -36,6 +36,7 @@ class WhereIsConfig(BaseCommand):
     def handle(self):
         print(Storage().user_data_dir_path)
 
+
 class ListPodcasts(BaseCommand):
     help = 'Print a list of podcasts.'
 
@@ -65,8 +66,8 @@ class ListEpisodes(BaseCommand):
 
     def handle(self):
         for podcast in Podcast.objects().values():
-            for guid, title, url, media_href in podcast.episodes:
-                print(title, media_href)
+            for episode in podcast.episodes:
+                print(episode.title, episode.media_href)
 
 
 class FetchEpisodes(BaseCommand):
@@ -81,15 +82,36 @@ class FetchEpisodes(BaseCommand):
                     continue
                 media_href = entry.enclosures[0].href
                 episodes.append(
-                    (entry.guid, entry.title, entry.link, media_href))
+                    (entry.guid, entry.title, entry.link, media_href, False))
             podcast.extend_episodes(episodes)
 
 
 class DownloadEpisodes(BaseCommand):
     help = 'Download episodes.'
 
-    def handle(self):
-        for podcast in Podcast.objects().values():
-            for _, _, _, media_href in podcast.episodes:
-                download.download(media_href, os.getcwd())
-                break
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'podcast_name', metavar='podcast', type=str, help='podcast name')
+        parser.add_argument(
+            'episodes', metavar='episodes', type=str,
+            help='episodes to download')
+
+    def handle(self, podcast_name, episodes):
+        if podcast_name is not None:
+            episode_indices_to_download = set()
+            elements = episodes.split(',')
+            for element in elements:
+                if element.isnumeric():
+                    # It's a single number
+                    episode_indices_to_download.add(int(element))
+                elif '-' in element:
+                    start, finish = map(int, element.split('-'))
+                    episode_indices_to_download.update(range(start, finish + 1))
+            episodes = Podcast.objects()[podcast_name].episodes
+            for index in episode_indices_to_download:
+                download.download(episodes[index].media_href, os.getcwd())
+        else:
+            for podcast in Podcast.objects().values():
+                for episode in podcast.episodes:
+                    download.download(episode.media_href, os.getcwd())
+                    break

@@ -46,7 +46,8 @@ class Storage:
     def init_episode_history_file(self, podcast_name):
         with open(self.get_episode_history_file_path(podcast_name), 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['guid', 'title', 'link', 'media_href'])
+            writer.writerow(
+                ['guid', 'title', 'link', 'media_href', 'downloaded'])
 
     def get_episode_history(self, podcast_name):
         path = self.get_episode_history_file_path(podcast_name)
@@ -65,6 +66,15 @@ class Storage:
             for episode in episodes:
                 writer.writerow(episode)
 
+    def save_episode_history(self, podcast_name, episodes):
+        path = self.get_episode_history_file_path(podcast_name)
+        self.init_episode_history_file(podcast_name)
+        with open(path, 'a') as f:
+            writer = csv.writer(f)
+            for e in episodes:
+                writer.writerow(
+                    [e.guid, e.title, e.link, e.media_href, e.downloaded])
+
 
 class Podcast:
     def __init__(self, name, feed):
@@ -79,7 +89,7 @@ class Podcast:
 
     @property
     def episodes(self):
-        return Storage().get_episode_history(self.name)
+        return EpisodeList(self)
 
     def extend_episodes(self, episodes):
         return Storage().extend_episode_history(self.name, episodes)
@@ -89,3 +99,24 @@ class Podcast:
         return OrderedDict(
             (name, cls(name, feed)) for name, feed in
             Storage().get_config_data()['podcasts'].items())
+
+
+class EpisodeList(list):
+    def __init__(self, podcast):
+        super().__init__()
+        self.podcast = podcast
+        self.extend(Episode(
+            guid=e[0], title=e[1], link=e[2], media_href=e[3], downloaded=False
+        ) for e in Storage().get_episode_history(self.podcast.name))
+
+    def save(self):
+        Storage().save_episode_history(self.podcast.name, self)
+
+
+class Episode:
+    def __init__(self, guid, title, link, media_href, downloaded):
+        self.guid = guid
+        self.title = title
+        self.link = link
+        self.media_href = media_href
+        self.downloaded = downloaded
