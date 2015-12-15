@@ -1,5 +1,3 @@
-from unittest.mock import patch
-import appdirs
 from riley.models import Podcast, Episode
 from riley.storage import FileStorage, FileEpisodeStorage
 
