@@ -1,0 +1,110 @@
+from collections import OrderedDict
+import csv
+import os
+
+from appdirs import user_data_dir
+import yaml
+from riley.models import Podcast, Episode
+
+
+class Storage:
+    def get_podcasts(self):
+        raise NotImplementedError
+
+    def save_podcasts(self, podcasts):
+        for podcast in podcasts:
+            if podcast.modified:
+                self.save_podcast(podcast)
+
+    def save_podcast(self, podcast):
+        raise NotImplementedError
+
+
+class EpisodeStorage:
+    def save_episodes(self, podcast):
+        raise NotImplementedError
+
+
+class AbstractFileStorage:
+    appname = 'Riley'
+    appauthor = 'Riley'
+
+    @property
+    def _user_data_dir_path(self):
+        return user_data_dir(self.appname, self.appauthor)
+
+
+class FileStorage(AbstractFileStorage, Storage):
+    @staticmethod
+    def _init_config_file(config_file_path):
+        os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+        init_data = {
+            'podcasts': {}
+        }
+        with open(config_file_path, 'w') as f:
+            f.write(yaml.dump(init_data, default_flow_style=False))
+
+    @property
+    def _config_file_path(self):
+        dir_ = self._user_data_dir_path
+        config_file_path = os.path.join(dir_, 'config.yml')
+        if not os.path.exists(config_file_path):
+            self._init_config_file(config_file_path)
+        return config_file_path
+
+    def _get_config_data(self):
+        with open(self._config_file_path, 'r') as f:
+            return yaml.load(f.read())
+
+    def _save_config_data(self, data):
+        with open(self._config_file_path, 'w') as f:
+            f.write(yaml.dump(data, default_flow_style=False))
+
+    def get_podcasts(self):
+        file_episode_storage = FileEpisodeStorage()
+        return OrderedDict(
+            (name, Podcast(name, feed, file_episode_storage))
+            for name, feed in self._get_config_data()['podcasts'].items())
+
+    def save_podcast(self, podcast):
+        config_data = self._get_config_data()
+        if podcast not in config_data or podcast.modified:
+            config_data['podcasts'][podcast.name] = podcast.feed
+            self._save_config_data(config_data)
+            podcast.modified = False
+        if podcast.episodes.modified:
+            file_episode_storage = FileEpisodeStorage()
+            file_episode_storage.save_episodes(podcast)
+            podcast.episodes.modified = False
+
+
+class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
+    def _get_episode_history_file_path(self, podcast):
+        return os.path.join(
+            self._user_data_dir_path, '%s_history.csv' % podcast.name)
+
+    def _init_episode_history_file(self, podcast):
+        with open(self._get_episode_history_file_path(podcast), 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                ['guid', 'title', 'link', 'media_href', 'downloaded'])
+
+    def get_episodes(self, podcast):
+        path = self._get_episode_history_file_path(podcast)
+        if not os.path.exists(path):
+            self._init_episode_history_file(podcast)
+        with open(path) as f:
+            reader = csv.reader(f)
+            return [Episode(
+                podcast, guid=e[0], title=e[1], link=e[2], media_href=e[3],
+                downloaded=e[4]
+            ) for e in list(reader)[1:]]
+
+    def save_episodes(self, podcast):
+        self._init_episode_history_file(podcast)
+        path = self._get_episode_history_file_path(podcast)
+        with open(path, 'a') as f:
+            writer = csv.writer(f)
+            for e in podcast.episodes:
+                writer.writerow(
+                    [e.guid, e.title, e.link, e.media_href, e.downloaded])

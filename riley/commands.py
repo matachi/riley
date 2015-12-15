@@ -3,7 +3,7 @@ import os
 import sys
 import feedparser
 from riley import download
-from riley.models import Podcast, Storage
+from riley.models import Podcast
 
 
 class BaseCommand:

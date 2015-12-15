@@ -8,7 +8,7 @@ from riley.models import Episode
 
 def test_download_episodes(monkeypatch):
     podcast_name = 'name'
-    episodes = [Episode(i, i, i, i, i) for i in range(10)]
+    episodes = [Episode(i, i, i, i, i, i) for i in range(10)]
 
     podcast_object_mock = MagicMock()
     podcast_object_mock.episodes = episodes
