@@ -7,6 +7,31 @@ import yaml
 from riley.models import Podcast, Episode
 
 
+def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+    # Source: http://stackoverflow.com/a/21912744/595990
+    class OrderedLoader(Loader):
+        pass
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
+
+
+def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
+    # Source: http://stackoverflow.com/a/21912744/595990
+    class OrderedDumper(Dumper):
+        pass
+    def _dict_representer(dumper, data):
+        return dumper.represent_mapping(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            data.items())
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
+
+
 class Storage:
     def get_podcasts(self):
         raise NotImplementedError
@@ -42,7 +67,7 @@ class FileStorage(AbstractFileStorage, Storage):
             'podcasts': {}
         }
         with open(config_file_path, 'w') as f:
-            f.write(yaml.dump(init_data, default_flow_style=False))
+            f.write(ordered_dump(init_data, default_flow_style=False))
 
     @property
     def _config_file_path(self):
@@ -54,11 +79,11 @@ class FileStorage(AbstractFileStorage, Storage):
 
     def _get_config_data(self):
         with open(self._config_file_path, 'r') as f:
-            return yaml.load(f.read())
+            return ordered_load(f.read())
 
     def _save_config_data(self, data):
         with open(self._config_file_path, 'w') as f:
-            f.write(yaml.dump(data, default_flow_style=False))
+            f.write(ordered_dump(data, default_flow_style=False))
 
     def get_podcasts(self):
         file_episode_storage = FileEpisodeStorage()

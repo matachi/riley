@@ -2,8 +2,58 @@ import os
 
 from unittest.mock import MagicMock, call
 
-from riley.commands import DownloadEpisodes
+from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
+    Insert, ListEpisodes
 from riley.models import Episode
+
+
+def test_where_is_config(capsys, monkeypatch):
+    monkeypatch.setattr(
+        'riley.commands.AbstractFileStorage._user_data_dir_path', 'abc')
+    WhereIsConfig().handle()
+    out, _err = capsys.readouterr()
+    assert out == 'abc\n'
+
+
+def test_list_podcasts(capsys, tmpdir, monkeypatch):
+    config = """podcasts:
+    kalle: http://anka.se
+    banka: http://example.com"""
+    config_path = tmpdir.join('config.yml')
+    config_path.write(config)
+
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+
+    ListPodcasts().handle()
+    out, _err = capsys.readouterr()
+    assert out == 'kalle http://anka.se\nbanka http://example.com\n'
+
+
+def test_insert(tmpdir, monkeypatch):
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+    Insert().handle('yolo', 'leet')
+    assert tmpdir.join('config.yml').read() == 'podcasts:\n  yolo: leet\n'
+
+
+def test_list_episodes(capsys, tmpdir, monkeypatch):
+    config = """podcasts:
+    kalle: http://anka.se"""
+    history = """guid,title,link,media_href,downloaded
+abc,def,ghi,jkl,mno"""
+
+    config_path = tmpdir.join('config.yml')
+    config_path.write(config)
+    history_path = tmpdir.join('kalle_history.csv')
+    history_path.write(history)
+
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+
+    ListEpisodes().handle()
+    out, _err = capsys.readouterr()
+    assert out == 'def jkl\n'
 
 
 def test_download_episodes(monkeypatch):
