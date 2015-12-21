@@ -22,7 +22,7 @@ Usage
 Example commands (still work-in-progess)::
 
     $ source env/bin/activate
-    $ riley insert linux-aciton-show http://feeds2.feedburner.com/TheLinuxActionShowOGG
+    $ riley insert linux-action-show http://feeds2.feedburner.com/TheLinuxActionShowOGG
     $ riley fetch
     $ riley list
     ... episode list ...
