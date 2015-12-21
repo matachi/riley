@@ -98,9 +98,10 @@ class DownloadEpisodes(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'podcast_name', metavar='podcast', type=str, help='podcast name')
+            'podcast_name', metavar='podcast', type=str, nargs='?',
+            help='podcast name')
         parser.add_argument(
-            'episodes', metavar='episodes', type=str,
+            'episodes', metavar='episodes', type=str, nargs='?',
             help='episodes to download')
 
     def handle(self, podcast_name, episodes):
@@ -114,11 +115,22 @@ class DownloadEpisodes(BaseCommand):
                 elif '-' in element:
                     start, finish = map(int, element.split('-'))
                     episode_indices_to_download.update(range(start, finish + 1))
-            episodes = Podcast.objects()[podcast_name].episodes
+            podcasts = FileStorage().get_podcasts()
+            if podcast_name in podcasts:
+                episodes = podcasts[podcast_name].episodes
+            else:
+                list_of_podcasts = '\n'.join(
+                    '* %s' % name for name in podcasts.keys())
+                sys.exit('\n'.join([
+                    "A podcast with the name '%s' does not exist." % podcast_name,
+                    "",
+                    "Try one of these instead:",
+                    "",
+                    list_of_podcasts
+                ]))
             for index in episode_indices_to_download:
                 download.download(episodes[index].media_href, os.getcwd())
         else:
-            for podcast in Podcast.objects().values():
+            for podcast in FileStorage().get_podcasts().values():
                 for episode in podcast.episodes:
                     download.download(episode.media_href, os.getcwd())
-                    break

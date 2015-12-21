@@ -120,13 +120,13 @@ def test_download_episodes(monkeypatch):
     podcast_object_mock = MagicMock()
     podcast_object_mock.episodes = episodes
 
-    podcast_class_mock = MagicMock()
-    podcast_class_mock.objects.return_value = {
+    file_storage_mock = MagicMock()
+    file_storage_mock.return_value.get_podcasts.return_value = {
         podcast_name: podcast_object_mock}
 
     download_class_mock = MagicMock()
 
-    monkeypatch.setattr('riley.commands.Podcast', podcast_class_mock)
+    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
     monkeypatch.setattr('riley.commands.download', download_class_mock)
 
     DownloadEpisodes().handle(podcast_name, '1-1,3,5-7')
