@@ -4,7 +4,7 @@ import sys
 
 import feedparser
 from riley import download
-from riley.models import Podcast
+from riley.models import Podcast, Episode
 from riley.storage import AbstractFileStorage, FileStorage, FileEpisodeStorage
 
 
@@ -77,7 +77,7 @@ class FetchEpisodes(BaseCommand):
     help = 'Fetch episodes.'
 
     def handle(self):
-        for podcast in Podcast.objects().values():
+        for podcast in FileStorage().get_podcasts().values():
             feed = feedparser.parse(podcast.feed)
             episodes = []
             for entry in feed.entries:
@@ -85,8 +85,12 @@ class FetchEpisodes(BaseCommand):
                     continue
                 media_href = entry.enclosures[0].href
                 episodes.append(
-                    (entry.guid, entry.title, entry.link, media_href, False))
-            podcast.extend_episodes(episodes)
+                    Episode(podcast, entry.guid, entry.title, entry.link,
+                            media_href, False))
+            for episode in episodes:
+                if episode not in podcast.episodes:
+                    podcast.episodes.append(episode)
+            FileEpisodeStorage().save_episodes(podcast)
 
 
 class DownloadEpisodes(BaseCommand):

@@ -38,6 +38,9 @@ class EpisodeList(list, HasBeenModified):
         super().append(x)
         self.modified = True
 
+    def __contains__(self, episode):
+        return any(True for e in self if e.guid == episode.guid)
+
 
 class Episode(HasBeenModified):
     def __init__(self, podcast, guid, title, link, media_href, downloaded):
