@@ -106,18 +106,11 @@ class DownloadEpisodes(BaseCommand):
 
     def handle(self, podcast_name, episodes):
         if podcast_name is not None:
-            episode_indices_to_download = set()
-            elements = episodes.split(',')
-            for element in elements:
-                if element.isnumeric():
-                    # It's a single number
-                    episode_indices_to_download.add(int(element))
-                elif '-' in element:
-                    start, finish = map(int, element.split('-'))
-                    episode_indices_to_download.update(range(start, finish + 1))
+            episode_indices_to_download = self.get_indices(episodes)
             podcasts = FileStorage().get_podcasts()
             if podcast_name in podcasts:
-                episodes = podcasts[podcast_name].episodes
+                podcast = podcasts[podcast_name]
+                episodes = podcast.episodes
             else:
                 list_of_podcasts = '\n'.join(
                     '* %s' % name for name in podcasts.keys())
@@ -129,8 +122,38 @@ class DownloadEpisodes(BaseCommand):
                     list_of_podcasts
                 ]))
             for index in episode_indices_to_download:
-                download.download(episodes[index].media_href, os.getcwd())
+                episode = episodes[index]
+                download.download(episode.media_href, os.getcwd())
+                episode.downloaded = True
+                FileStorage().save_podcast(podcast)
         else:
             for podcast in FileStorage().get_podcasts().values():
                 for episode in podcast.episodes:
                     download.download(episode.media_href, os.getcwd())
+
+    @staticmethod
+    def get_indices(string):
+        """
+
+        >>> DownloadEpisodes.get_indices('1')
+        [1]
+        >>> DownloadEpisodes.get_indices('1,3,5')
+        [1, 3, 5]
+        >>> DownloadEpisodes.get_indices('1,3-5,7')
+        [1, 3, 4, 5, 7]
+        >>> DownloadEpisodes.get_indices('1,7,1-2,1-3')
+        [1, 2, 3, 7]
+
+        :param str string: Sring with elements.
+        :return: List of indices.
+        """
+        episode_indices_to_download = set()
+        elements = string.split(',')
+        for element in elements:
+            if element.isnumeric():
+                # It's a single number
+                episode_indices_to_download.add(int(element))
+            elif '-' in element:
+                start, finish = map(int, element.split('-'))
+                episode_indices_to_download.update(range(start, finish + 1))
+        return list(episode_indices_to_download)

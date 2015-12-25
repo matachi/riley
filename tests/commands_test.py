@@ -120,29 +120,27 @@ def test_fetch_episodes(tmpdir, monkeypatch):
     assert history_path.read() == expected_read
 
 
-def test_download_episodes(monkeypatch):
-    podcast_name = 'name'
-    episodes = [Episode(i, i, i, i, i, '2012-12-12 12:12:12', i) for i in
-                range(10)]
+def test_download_episodes(tmpdir, monkeypatch):
+    config = """podcasts:
+    kalle: http://anka.se"""
+    history = """guid,title,link,media_href,published,downloaded
+abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
 
-    podcast_object_mock = MagicMock()
-    podcast_object_mock.episodes = episodes
-
-    file_storage_mock = MagicMock()
-    file_storage_mock.return_value.get_podcasts.return_value = {
-        podcast_name: podcast_object_mock}
+    config_path = tmpdir.join('config.yml')
+    config_path.write(config)
+    history_path = tmpdir.join('kalle_history.csv')
+    history_path.write(history)
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
 
     download_class_mock = MagicMock()
-
-    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
     monkeypatch.setattr('riley.commands.download', download_class_mock)
 
-    DownloadEpisodes().handle(podcast_name, '1-1,3,5-7')
+    DownloadEpisodes().handle('kalle', '0')
 
     assert download_class_mock.download.call_args_list == [
-        call(1, os.getcwd()),
-        call(3, os.getcwd()),
-        call(5, os.getcwd()),
-        call(6, os.getcwd()),
-        call(7, os.getcwd()),
+        call('jkl', os.getcwd()),
     ]
+    expected_read = """guid,title,link,media_href,published,downloaded
+abc,def,ghi,jkl,2012-12-12 10:10:10,True\n"""
+    assert history_path.read() == expected_read
