@@ -1,3 +1,5 @@
+from time import struct_time
+
 from riley.models import HasBeenModified, Podcast, Episode
 from riley.storage import EpisodeStorage
 
@@ -27,8 +29,8 @@ class DummyEpisodeStorage(EpisodeStorage):
 
     def get_episodes(self, podcast):
         return [
-            Episode(podcast, 1, 2, 3, 4, 5),
-            Episode(podcast, 6, 7, 8, 9, 10),
+            Episode(podcast, 1, 2, 3, 4, '2012-05-06 07:08:09', 5),
+            Episode(podcast, 6, 7, 8, 9, '2012-06-07 07:08:09', 10),
         ]
 
 
@@ -52,11 +54,15 @@ def test_podcast_and_episode():
     assert episodes[0].title == 2
     assert episodes[0].link == 3
     assert episodes[0].media_href == 4
+    assert episodes[0].published == struct_time((
+        2012, 5, 6, 7, 8, 9, 6, 127, -1))
     assert episodes[0].downloaded == 5
     assert episodes[1].guid == 6
     assert episodes[1].title == 7
     assert episodes[1].link == 8
     assert episodes[1].media_href == 9
+    assert episodes[1].published == struct_time((
+        2012, 6, 7, 7, 8, 9, 3, 159, -1))
     assert episodes[1].downloaded == 10
 
     assert not podcast.modified
@@ -77,7 +83,7 @@ def test_podcast_and_episode():
     assert not episodes[0].modified
     assert not episodes[1].modified
     assert len(episodes) == 2
-    episodes.append(Episode(podcast, 11, 12, 13, 14, 15))
+    episodes.append(Episode(podcast, 11, 12, 13, 14, '2012-12-12 12:12:12', 16))
     assert len(episodes) == 3
     assert not podcast.modified
     assert episodes.modified

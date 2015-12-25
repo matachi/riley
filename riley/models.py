@@ -1,3 +1,6 @@
+import time
+
+
 class HasBeenModified:
     def __init__(self):
         self.modified = False
@@ -43,14 +46,37 @@ class EpisodeList(list, HasBeenModified):
 
 
 class Episode(HasBeenModified):
-    def __init__(self, podcast, guid, title, link, media_href, downloaded):
+    columns = ['guid', 'title', 'link', 'media_href', 'published', 'downloaded']
+
+    def __init__(self, podcast, guid, title, link, media_href, published,
+                 downloaded):
         super(Episode, self).__init__()
         self.podcast = podcast
         self.guid = guid
         self.title = title
         self.link = link
         self.media_href = media_href
+        if isinstance(published, time.struct_time):
+            self.published = published
+        elif isinstance(published, str):
+            self.published = time.strptime(published, '%Y-%m-%d %H:%M:%S')
+        else:
+            raise TypeError
         self.downloaded = downloaded
+
+    @classmethod
+    def from_tuple(cls, podcast, tuple):
+        return cls(podcast, *tuple)
+
+    def str_attributes(self):
+        return [
+            self.guid,
+            self.title,
+            self.link,
+            self.media_href,
+            time.strftime('%Y-%m-%d %H:%M:%S', self.published),
+            self.downloaded
+        ]
 
     def modified_attr(self, key, value):
         self.podcast.episodes.modified = True

@@ -111,8 +111,7 @@ class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
     def _init_episode_history_file(self, podcast):
         with open(self._get_episode_history_file_path(podcast), 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(
-                ['guid', 'title', 'link', 'media_href', 'downloaded'])
+            writer.writerow(Episode.columns)
 
     def get_episodes(self, podcast):
         path = self._get_episode_history_file_path(podcast)
@@ -120,10 +119,7 @@ class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
             self._init_episode_history_file(podcast)
         with open(path) as f:
             reader = csv.reader(f)
-            return [Episode(
-                podcast, guid=e[0], title=e[1], link=e[2], media_href=e[3],
-                downloaded=e[4]
-            ) for e in list(reader)[1:]]
+            return [Episode.from_tuple(podcast, e) for e in list(reader)[1:]]
 
     def save_episodes(self, podcast):
         self._init_episode_history_file(podcast)
@@ -131,5 +127,4 @@ class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
         with open(path, 'a') as f:
             writer = csv.writer(f)
             for e in podcast.episodes:
-                writer.writerow(
-                    [e.guid, e.title, e.link, e.media_href, e.downloaded])
+                writer.writerow(e.str_attributes())

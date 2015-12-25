@@ -1,6 +1,7 @@
 from itertools import chain
 import os
 from unittest.mock import MagicMock, call
+import time
 
 from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
     Insert, ListEpisodes, FetchEpisodes
@@ -40,8 +41,8 @@ def test_insert(tmpdir, monkeypatch):
 def test_list_episodes(capsys, tmpdir, monkeypatch):
     config = """podcasts:
     kalle: http://anka.se"""
-    history = """guid,title,link,media_href,downloaded
-abc,def,ghi,jkl,mno"""
+    history = """guid,title,link,media_href,published,downloaded
+abc,def,ghi,jkl,2012-12-12 10:10:10,mno"""
 
     config_path = tmpdir.join('config.yml')
     config_path.write(config)
@@ -63,12 +64,14 @@ def test_fetch_episodes(tmpdir, monkeypatch):
         'episode 1',
         'http://example.com/episode/3',
         'http://example.com/media.ogg',
+        '2015-12-12 12:12:12',
         False
     ], [
         '124',
         'a new hope',
         'http://example.com/episode/4',
         'http://example.com/media-final.ogg',
+        '2015-12-12 12:12:12',
         False
     ]]
 
@@ -78,8 +81,8 @@ def test_fetch_episodes(tmpdir, monkeypatch):
     config_path = tmpdir.join('config.yml')
     config_path.write(config)
     # Insert one of the episodes into the history file
-    history = """guid,title,link,media_href,downloaded
-{},{},{},{},{}""".format(*expected_data[0])
+    history = """guid,title,link,media_href,published,downloaded
+{},{},{},{},{},{}""".format(*expected_data[0])
     history_path = tmpdir.join('kalle_history.csv')
     history_path.write(history)
     monkeypatch.setattr(
@@ -100,6 +103,10 @@ def test_fetch_episodes(tmpdir, monkeypatch):
     entry2.title = expected_data[1][1]
     entry1.link = expected_data[0][2]
     entry2.link = expected_data[1][2]
+    entry1.published_parsed = time.struct_time(
+        (2015, 12, 12, 12, 12, 12, 5, 346, -1))
+    entry2.published_parsed = time.struct_time(
+        (2015, 12, 12, 12, 12, 12, 5, 346, -1))
     monkeypatch.setattr('riley.commands.feedparser', feedparser)
 
     # Fetch new episodes
@@ -107,15 +114,16 @@ def test_fetch_episodes(tmpdir, monkeypatch):
 
     # There should be two episodes in the file, since one was a duplicate (it
     # had already been fetched previously)
-    expected_read = """guid,title,link,media_href,downloaded
-{},{},{},{},{}
-{},{},{},{},{}\n""".format(*chain(*expected_data))
+    expected_read = """guid,title,link,media_href,published,downloaded
+{},{},{},{},{},{}
+{},{},{},{},{},{}\n""".format(*chain(*expected_data))
     assert history_path.read() == expected_read
 
 
 def test_download_episodes(monkeypatch):
     podcast_name = 'name'
-    episodes = [Episode(i, i, i, i, i, i) for i in range(10)]
+    episodes = [Episode(i, i, i, i, i, '2012-12-12 12:12:12', i) for i in
+                range(10)]
 
     podcast_object_mock = MagicMock()
     podcast_object_mock.episodes = episodes

@@ -86,7 +86,7 @@ class FetchEpisodes(BaseCommand):
                 media_href = entry.enclosures[0].href
                 episodes.append(
                     Episode(podcast, entry.guid, entry.title, entry.link,
-                            media_href, False))
+                            media_href, entry.published_parsed, False))
             for episode in episodes:
                 if episode not in podcast.episodes:
                     podcast.episodes.append(episode)
