@@ -5,7 +5,6 @@ import time
 
 from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
     Insert, ListEpisodes, FetchEpisodes
-from riley.models import Episode
 
 
 def test_where_is_config(capsys, monkeypatch):
