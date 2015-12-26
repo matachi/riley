@@ -68,9 +68,12 @@ class ListEpisodes(BaseCommand):
     help = 'Print a list of episodes.'
 
     def handle(self):
+        episodes = []
         for podcast in FileStorage().get_podcasts().values():
-            for episode in podcast.episodes:
-                print(episode.title, episode.media_href)
+            episodes.extend(podcast.episodes)
+        episodes.sort(key=lambda e: e.published)
+        for episode in episodes:
+            print(episode.title, episode.media_href)
 
 
 class FetchEpisodes(BaseCommand):
