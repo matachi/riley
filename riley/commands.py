@@ -86,10 +86,12 @@ class FetchEpisodes(BaseCommand):
             for entry in feed.entries:
                 if len(entry.enclosures) == 0:
                     continue
+                # Use an empty string when no link is available
+                link = getattr(entry, 'link', '')
                 media_href = entry.enclosures[0].href
                 episodes.append(
-                    Episode(podcast, entry.guid, entry.title, entry.link,
-                            media_href, entry.published_parsed, False))
+                    Episode(podcast, entry.guid, entry.title, link, media_href,
+                            entry.published_parsed, False))
             for episode in episodes:
                 if episode not in podcast.episodes:
                     podcast.episodes.append(episode)
