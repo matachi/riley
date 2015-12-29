@@ -44,7 +44,10 @@ class ListPodcasts(BaseCommand):
 
     def handle(self):
         for podcast in FileStorage().get_podcasts().values():
-            print(podcast.name, podcast.feed)
+            try:
+                print(podcast.name, podcast.feed)
+            except BrokenPipeError:
+                return
 
 
 class Insert(BaseCommand):
@@ -81,7 +84,10 @@ class ListEpisodes(BaseCommand):
                 episodes.extend(podcast.episodes)
             episodes.sort(key=lambda e: e.published, reverse=True)
         for episode in episodes:
-            print(episode.title, episode.media_href)
+            try:
+                print(episode.title, episode.media_href)
+            except BrokenPipeError:
+                return
 
 
 class FetchEpisodes(BaseCommand):
