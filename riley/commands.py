@@ -67,10 +67,18 @@ class Insert(BaseCommand):
 class ListEpisodes(BaseCommand):
     help = 'Print a list of episodes.'
 
-    def handle(self):
-        episodes = []
-        for podcast in FileStorage().get_podcasts().values():
-            episodes.extend(podcast.episodes)
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'podcast_name', metavar='podcast', type=str, nargs='?',
+            help='podcast name')
+
+    def handle(self, podcast_name=None):
+        if podcast_name is not None:
+            episodes = FileStorage().get_podcasts()[podcast_name].episodes
+        else:
+            episodes = []
+            for podcast in FileStorage().get_podcasts().values():
+                episodes.extend(podcast.episodes)
         episodes.sort(key=lambda e: e.published)
         for episode in episodes:
             print(episode.title, episode.media_href)
