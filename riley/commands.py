@@ -79,7 +79,7 @@ class ListEpisodes(BaseCommand):
             episodes = []
             for podcast in FileStorage().get_podcasts().values():
                 episodes.extend(podcast.episodes)
-        episodes.sort(key=lambda e: e.published)
+            episodes.sort(key=lambda e: e.published, reverse=True)
         for episode in episodes:
             print(episode.title, episode.media_href)
 

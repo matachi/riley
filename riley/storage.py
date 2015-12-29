@@ -119,7 +119,10 @@ class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
             self._init_episode_history_file(podcast)
         with open(path) as f:
             reader = csv.reader(f)
-            return [Episode.from_tuple(podcast, e) for e in list(reader)[1:]]
+            episodes = [
+                Episode.from_tuple(podcast, e) for e in list(reader)[1:]]
+            episodes.sort(key=lambda e: e.published, reverse=True)
+            return episodes
 
     def save_episodes(self, podcast):
         self._init_episode_history_file(podcast)
