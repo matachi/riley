@@ -137,6 +137,8 @@ def test_fetch_feed_without_enclosure(monkeypatch):
         return_value = [podcast]
     monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
 
+    monkeypatch.setattr('riley.commands.FileEpisodeStorage', MagicMock())
+
     FetchEpisodes().handle()
 
     # The episode without an enclosure is not saved
@@ -161,6 +163,8 @@ def test_fetch_feed_without_links(monkeypatch):
     file_storage_mock.return_value.get_podcasts.return_value.values. \
         return_value = [podcast]
     monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
+
+    monkeypatch.setattr('riley.commands.FileEpisodeStorage', MagicMock())
 
     FetchEpisodes().handle()
 
