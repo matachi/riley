@@ -32,9 +32,11 @@ def test_list_podcasts(capsys, tmpdir, monkeypatch):
 
 def test_insert(tmpdir, monkeypatch):
     monkeypatch.setattr(
-        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+        'riley.storage.user_data_dir', lambda a, b: tmpdir.strpath)
+    monkeypatch.setattr('riley.storage.expanduser', lambda _: '/home/user')
     Insert().handle('yolo', 'leet')
-    assert tmpdir.join('config.yml').read() == 'podcasts:\n  yolo: leet\n'
+    assert tmpdir.join('config.yml').read() == \
+           'storage: /home/user/Videos/Riley\npodcasts:\n  yolo: leet\n'
 
 
 def test_list_episodes(capsys, tmpdir, monkeypatch):

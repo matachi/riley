@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import csv
 import os
+from os.path import expanduser
 
 from appdirs import user_data_dir
 import yaml
@@ -33,6 +34,9 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
 
 
 class Storage:
+    def get_config(self):
+        raise NotImplementedError
+
     def get_podcasts(self):
         raise NotImplementedError
 
@@ -63,9 +67,10 @@ class FileStorage(AbstractFileStorage, Storage):
     @staticmethod
     def _init_config_file(config_file_path):
         os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
-        init_data = {
-            'podcasts': {}
-        }
+        init_data = OrderedDict([
+            ('storage', os.path.join(expanduser("~"), 'Videos', 'Riley')),
+            ('podcasts', {}),
+        ])
         with open(config_file_path, 'w') as f:
             f.write(ordered_dump(init_data, default_flow_style=False))
 
@@ -77,7 +82,7 @@ class FileStorage(AbstractFileStorage, Storage):
             self._init_config_file(config_file_path)
         return config_file_path
 
-    def _get_config_data(self):
+    def get_config(self):
         with open(self._config_file_path, 'r') as f:
             return ordered_load(f.read())
 
@@ -89,10 +94,10 @@ class FileStorage(AbstractFileStorage, Storage):
         file_episode_storage = FileEpisodeStorage()
         return OrderedDict(
             (name, Podcast(name, feed, file_episode_storage))
-            for name, feed in self._get_config_data()['podcasts'].items())
+            for name, feed in self.get_config()['podcasts'].items())
 
     def save_podcast(self, podcast):
-        config_data = self._get_config_data()
+        config_data = self.get_config()
         if podcast not in config_data or podcast.modified:
             config_data['podcasts'][podcast.name] = podcast.feed
             self._save_config_data(config_data)

@@ -1,3 +1,4 @@
+import re
 from time import strptime, struct_time
 
 from riley.models import Podcast, Episode
@@ -51,7 +52,7 @@ def test_save_podcast(tmpdir, monkeypatch):
     file_storage.save_podcast(podcast)
 
     config_path = tmpdir.join('config.yml')
-    assert config_path.read() == 'podcasts:\n  abc: def\n'
+    assert re.compile('.*podcasts:\n  abc: def\n').search(config_path.read())
     history_path = tmpdir.join('abc_history.csv')
     assert history_path.read() == \
         'guid,title,link,media_href,published,downloaded\n' \
