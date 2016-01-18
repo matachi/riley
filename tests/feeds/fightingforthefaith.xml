@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+    <channel>
+        <title>Fighting for the Faith</title>
+        <link>http://www.fightingforthefaith.com</link>
+        <description>This is a program that defends the Christian Faith from attacks from both inside and outside of the visible Church. Think of this program as theology on roller blades. We name names as well as expose errors and heresies. We also try to have a little fun along the way. Topics include, apologetics, doctrine, and the Good News that Jesus Christ is God in Human Flesh and that He Died for the Sins of the World.</description>
+        <generator>Feeder 3 3.1.4(2615); Mac OS X Version 10.11.2 (Build 15C50) http://reinventedsoftware.com/feeder/</generator>
+        <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+        <language>en</language>
+        <copyright>2014, Fighting For The Faith</copyright>
+        <pubDate>Sat, 16 Jan 2016 04:18:32 -0600</pubDate>
+        <lastBuildDate>Sat, 16 Jan 2016 04:18:33 -0600</lastBuildDate>
+        <category>Christianity</category>
+        <image>
+            <url>http://www.piratechristianradio.com/F4F_144.jpg</url>
+            <title>Fighting for the Faith</title>
+            <link>http://www.fightingforthefaith.com</link>
+            <width>144</width>
+            <height>144</height>
+        </image>
+        <atom:link href="http://www.piratechristianradio.com/FFTF.xml" rel="self" type="application/rss+xml"/>
+        <itunes:author>Chris Rosebrough @PirateChristian</itunes:author>
+        <itunes:subtitle>A Pirate Christian Radio Production</itunes:subtitle>
+        <itunes:summary><![CDATA[This is a program that defends the Christian Faith from attacks from both inside and outside of the visible Church. Think of this program as theology on roller blades.  We name names as well as expose errors and heresies. We also try to have a little fun along the way. Topics include, apologetics, doctrine, and the Good News that Jesus Christ is God in Human Flesh and that He Died for the Sins of the World.]]></itunes:summary>
+        <itunes:keywords>Christianity, Theology, Apologetics, Doctrine, Seeker Sensitive, Emergent Church, Emerging Church</itunes:keywords>
+        <itunes:image href="http://www.piratechristianradio.com/F4F.jpg"/>
+        <itunes:explicit>clean</itunes:explicit>
+        <itunes:owner>
+            <itunes:name>Chris Rosebrough</itunes:name>
+            <itunes:email>talkback@fightingforthefaith.com</itunes:email>
+        </itunes:owner>
+        <itunes:block>no</itunes:block>
+        <itunes:category text="Religion &amp; Spirituality">
+            <itunes:category text="Christianity"/>
+        </itunes:category>
+        <item>
+            <title>Rosebrough's Ramblings on Colossians</title>
+            <description><![CDATA[Rosebrough's Ramblings on Colossians]]></description>
+            <pubDate>Mon, 11 Jan 2016 19:21:00 -0600</pubDate>
+            <enclosure url="http://0352182.netsolhost.com/F4F/F4F011116.mp3" length="0" type="audio/mpeg"/>
+            <guid isPermaLink="false">3EBC2FB4-18C4-4142-990E-3DE3B8C033D2</guid>
+            <itunes:summary><![CDATA[Rosebrough's Ramblings on Colossians]]></itunes:summary>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:duration>1:35:22</itunes:duration>
+        </item>
+        <item>
+            <title>When God Came Down</title>
+            <description><![CDATA[<p>00:09:10 - Conversation with Amy Spreeman
+<br />01:16:45 - Good Sermon: When God Came Down by Gervase Charmley</p>]]></description>
+            <pubDate>Fri, 08 Jan 2016 18:19:00 -0600</pubDate>
+            <guid isPermaLink="false">6CFBB788-92E4-46CC-9422-B08240B59562</guid>
+            <itunes:summary><![CDATA[00:09:10 - Conversation with Amy Spreeman
+01:16:45 - Good Sermon: When God Came Down by Gervase Charmley]]></itunes:summary>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:duration>1:55:23</itunes:duration>
+        </item>
+    </channel>
+</rss>

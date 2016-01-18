@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
+xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"
+>
+
+<channel>
+	<title>Frihetsfaxen</title>
+	<atom:link href="http://frihetsfaxen.se/feed/" rel="self" type="application/rss+xml" />
+	<link>http://frihetsfaxen.se</link>
+	<description>Sveriges anarkokapitalistiska podcast - Med Kristian &#38; Hanna</description>
+	<lastBuildDate>Thu, 14 Jan 2016 07:55:18 +0000</lastBuildDate>
+	<language>sv-SE</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=4.4.1</generator>
+<!-- podcast_generator="Blubrry PowerPress/6.3" mode="advanced" -->
+	<itunes:summary>Mer eller mindre lättsamma diskussioner om allt från galna nyheter till filosofiska frågeställningar, allt från ett extremt frihetligt perspektiv.</itunes:summary>
+	<itunes:author>Frihetsfaxen</itunes:author>
+	<itunes:explicit>no</itunes:explicit>
+	<itunes:image href="http://frihetsfaxen.se/wp-content/uploads/powerpress/frihetsfaxen_logo_neutral.jpg" />
+	<itunes:owner>
+		<itunes:name>Frihetsfaxen</itunes:name>
+		<itunes:email>kristian.nilsen@leftisright.se</itunes:email>
+	</itunes:owner>
+	<managingEditor>kristian.nilsen@leftisright.se (Frihetsfaxen)</managingEditor>
+	<itunes:subtitle>Sveriges anarkokapitalistiska podcast</itunes:subtitle>
+	<image>
+		<title>Frihetsfaxen</title>
+		<url>http://frihetsfaxen.se/wp-content/uploads/powerpress/frihetsfaxen_logo_neutral.jpg</url>
+		<link>http://frihetsfaxen.se</link>
+	</image>
+	<itunes:category text="News &amp; Politics" />
+	<rawvoice:location>Sverige</rawvoice:location>
+	<rawvoice:frequency>Varje torsdag</rawvoice:frequency>
+	<item>
+		<title>Avsnitt 78 &#8211; #DNgate</title>
+		<link>http://frihetsfaxen.se/avsnitt-78-dngate/</link>
+		<comments>http://frihetsfaxen.se/avsnitt-78-dngate/#comments</comments>
+		<pubDate>Thu, 14 Jan 2016 07:55:18 +0000</pubDate>
+		<dc:creator><![CDATA[Kristian]]></dc:creator>
+				<category><![CDATA[Frihetsfaxen]]></category>
+		<category><![CDATA[#dngate]]></category>
+		<category><![CDATA[7 days to die]]></category>
+		<category><![CDATA[Chang Frick]]></category>
+		<category><![CDATA[frihetsfaxen]]></category>
+		<category><![CDATA[frihetsfika]]></category>
+		<category><![CDATA[Hanna]]></category>
+		<category><![CDATA[Köln]]></category>
+		<category><![CDATA[Kristian]]></category>
+		<category><![CDATA[nyheter idag]]></category>
+		<category><![CDATA[Rösträtt]]></category>
+		<category><![CDATA[X-files]]></category>
+
+		<guid isPermaLink="false">http://frihetsfaxen.se/?p=731</guid>
+		<description><![CDATA[Årets första Frihetsfaxen är här! Kristian och Hanna har blivit stora och feta under julen och tvingas att titta lite bakåt på vad som hänt medans dom haft ledigt. Det blir dock spännade snabbt då Chang Frick dagen innan har avslöjat att DN kände till sexuella övergrepp av svenska flickor av invandrare redan i Augusti förra året men skrev inget. Milda makaroner!]]></description>
+		<wfw:commentRss>http://frihetsfaxen.se/avsnitt-78-dngate/feed/</wfw:commentRss>
+		<slash:comments>8</slash:comments>
+<enclosure url="http://www.frihetsfaxen.se/mp3/frihetsfaxen78.mp3" length="91155480" type="audio/mpeg" />
+		<itunes:subtitle>Årets första Frihetsfaxen är här! Kristian och Hanna har blivit stora och feta under julen och tvingas att titta lite bakåt på vad som hänt medans dom haft ledigt. Det blir dock spännade snabbt då Chang Frick dagen innan har avslöjat att DN kände till ...</itunes:subtitle>
+		<itunes:summary>Årets första Frihetsfaxen är här! Kristian och Hanna har blivit stora och feta under julen och tvingas att titta lite bakåt på vad som hänt medans dom haft ledigt. Det blir dock spännade snabbt då Chang Frick dagen innan har avslöjat att DN kände till sexuella övergrepp av svenska flickor av invandrare redan i Augusti förra året men skrev inget. Milda makaroner!</itunes:summary>
+		<itunes:author>Kristian</itunes:author>
+		<itunes:explicit>no</itunes:explicit>
+		<itunes:duration>2:06:36</itunes:duration>
+	</item>
+	<item>
+		<title>Hannas nyårskrönika</title>
+		<link>http://frihetsfaxen.se/gott-nytt-ar/</link>
+		<comments>http://frihetsfaxen.se/gott-nytt-ar/#respond</comments>
+		<pubDate>Thu, 31 Dec 2015 12:46:27 +0000</pubDate>
+		<dc:creator><![CDATA[Hanna Söderström]]></dc:creator>
+				<category><![CDATA[Nyheter / Blogg]]></category>
+		<category><![CDATA[2015]]></category>
+		<category><![CDATA[Hanna]]></category>
+		<category><![CDATA[Kristian]]></category>
+		<category><![CDATA[nyår]]></category>
+		<category><![CDATA[Resumé]]></category>
+
+		<guid isPermaLink="false">http://frihetsfaxen.se/?p=721</guid>
+		<description><![CDATA[Då var mitt första år med frihetsfaxen till ända! Det har varit ett jättekul år, vi har haft massor av intressanta gäster och vår lyssnarskara har ökat stadigt. Sedan jag kom in som gäst i början av 2015, för att sedan fortsätta som co-host, har vi haft inte mindre än 22 gäster i olika avsnitt (varav några återkommande). [&#8230;]]]></description>
+		<wfw:commentRss>http://frihetsfaxen.se/gott-nytt-ar/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+	</item>
+</channel>
+</rss>

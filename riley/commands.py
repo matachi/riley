@@ -98,7 +98,8 @@ class FetchEpisodes(BaseCommand):
             feed = feedparser.parse(podcast.feed)
             episodes = []
             for entry in feed.entries:
-                if len(entry.enclosures) == 0:
+                enclosures = getattr(entry, 'enclosures', [])
+                if len(enclosures) == 0:
                     continue
                 # Use an empty string when no link is available
                 link = getattr(entry, 'link', '')

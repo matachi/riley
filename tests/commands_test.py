@@ -1,7 +1,7 @@
-from itertools import chain
 import os
-from unittest.mock import MagicMock, call
 import time
+from itertools import chain
+from unittest.mock import MagicMock, call
 
 from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
     Insert, ListEpisodes, FetchEpisodes
@@ -119,6 +119,55 @@ def test_fetch_episodes(tmpdir, monkeypatch):
 {},{},{},{},{},{}
 {},{},{},{},{},{}\n""".format(*chain(*expected_data))
     assert history_path.read() == expected_read
+
+
+def test_fetch_feed_without_enclosure(monkeypatch):
+    """
+    Item 'Hannas nyårskrönika' does not contain any enclosure.
+    """
+    podcast = MagicMock()
+    podcast.episodes = []
+    podcast.feed = os.path.join(
+        os.path.dirname(__file__), 'feeds', 'frihetsfaxen.xml')
+
+    file_storage_mock = MagicMock()
+    file_storage_mock.return_value.get_podcasts.return_value.values.\
+        return_value = [podcast]
+    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
+
+    FetchEpisodes().handle()
+
+    # The episode without an enclosure is not saved
+    assert len(podcast.episodes) == 1
+
+    episode = podcast.episodes[0]
+    assert episode.title == 'Avsnitt 78 – #DNgate'
+    assert episode.media_href == 'http://www.frihetsfaxen.se/mp3/frihetsfaxen78.mp3'
+
+
+def test_fetch_feed_without_links(monkeypatch):
+    """
+    Episode 'When God Came Down' does not contain any links, including
+    enclosures.
+    """
+    podcast = MagicMock()
+    podcast.episodes = []
+    podcast.feed = os.path.join(
+            os.path.dirname(__file__), 'feeds', 'fightingforthefaith.xml')
+
+    file_storage_mock = MagicMock()
+    file_storage_mock.return_value.get_podcasts.return_value.values. \
+        return_value = [podcast]
+    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
+
+    FetchEpisodes().handle()
+
+    # The episode without any links was not saved
+    assert len(podcast.episodes) == 1
+
+    episode = podcast.episodes[0]
+    assert episode.title == "Rosebrough's Ramblings on Colossians"
+    assert episode.media_href == 'http://0352182.netsolhost.com/F4F/F4F011116.mp3'
 
 
 def test_download_episodes(tmpdir, monkeypatch):
