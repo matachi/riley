@@ -1,13 +1,14 @@
 import cgi
 import os
+import time
 from urllib.parse import urlparse
 
-from clint.textui.progress import Bar
 import requests
+from clint.textui.progress import Bar
 
 
-def download(url, to_dir):
-    os.makedirs(to_dir)
+def download(url, to_dir, datetime=None):
+    os.makedirs(to_dir, exist_ok=True)
     response = requests.get(url, stream=True)
     save_path = os.path.join(to_dir, get_file_name(response))
     with open(save_path, 'wb') as f:
@@ -16,6 +17,9 @@ def download(url, to_dir):
             for i, block in enumerate(response.iter_content(1024), 1):
                 f.write(block)
                 bar.show(min(i * 1024, total_length))
+    if datetime is not None:
+        unix_timestamp = int(time.mktime(datetime))
+        os.utime(save_path, (unix_timestamp, unix_timestamp))
 
 
 def get_file_name(response):

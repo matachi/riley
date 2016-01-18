@@ -194,7 +194,11 @@ abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
     DownloadEpisodes().handle('kalle', '0')
 
     assert download_class_mock.download.call_args_list == [
-        call('jkl', '~/downloads'),
+        call(
+            'jkl',
+            '~/downloads',
+             time.strptime('2012-12-12 10:10:10', '%Y-%m-%d %H:%M:%S')
+        ),
     ]
     expected_read = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,True\n"""

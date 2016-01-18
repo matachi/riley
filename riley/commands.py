@@ -158,7 +158,8 @@ class DownloadEpisodes(BaseCommand):
 
         download_directory = file_storage.get_config()['storage']
         for episode in episodes:
-            download.download(episode.media_href, download_directory)
+            download.download(episode.media_href, download_directory,
+                              episode.published)
             episode.downloaded = True
             FileStorage().save_podcast(episode.podcast)
 
