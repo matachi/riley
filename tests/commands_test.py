@@ -1,8 +1,10 @@
 import os
+import re
 import time
 from itertools import chain
 from unittest.mock import MagicMock, call
 
+from pytest import raises
 from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
     Insert, ListEpisodes, FetchEpisodes
 
@@ -194,3 +196,33 @@ abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
     expected_read = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,True\n"""
     assert history_path.read() == expected_read
+
+
+def test_download_invalid_podcast(monkeypatch):
+    file_storage_mock = MagicMock()
+    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
+
+    with raises(SystemExit) as exception:
+        DownloadEpisodes().handle('kalle', '0')
+
+    assert re.compile(
+        "A podcast with the name 'kalle' does not exist..*"
+    ).search(exception.value.code)
+
+
+def test_download_invalid_episodes(monkeypatch):
+    podcast = MagicMock()
+    podcast.episodes = [0, 1, 2, 3]
+
+    file_storage_mock = MagicMock()
+    file_storage_mock.return_value.get_podcasts.return_value = {
+        'kalle': podcast}
+    monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
+
+    with raises(SystemExit) as exception:
+        DownloadEpisodes().handle('kalle', '4')
+
+    assert exception.value.code == \
+       "The podcast does not have an episode with index '4'.\n" \
+       "\n" \
+       "The valid range is: [0, 3]"

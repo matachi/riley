@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from itertools import chain
 
 import feedparser
 from riley import download
@@ -121,16 +122,15 @@ class DownloadEpisodes(BaseCommand):
             'podcast_name', metavar='podcast', type=str, nargs='?',
             help='podcast name')
         parser.add_argument(
-            'episodes', metavar='episodes', type=str, nargs='?',
+            'episode_ranges', metavar='episodes', type=str, nargs='?',
             help='episodes to download')
 
-    def handle(self, podcast_name, episodes):
+    def handle(self, podcast_name, episode_ranges):
+        podcasts = FileStorage().get_podcasts()
         if podcast_name is not None:
-            episode_indices_to_download = self.get_indices(episodes)
-            podcasts = FileStorage().get_podcasts()
+            episode_indices_to_download = self.get_indices(episode_ranges)
             if podcast_name in podcasts:
                 podcast = podcasts[podcast_name]
-                episodes = podcast.episodes
             else:
                 list_of_podcasts = '\n'.join(
                     '* %s' % name for name in podcasts.keys())
@@ -141,15 +141,22 @@ class DownloadEpisodes(BaseCommand):
                     "",
                     list_of_podcasts
                 ]))
-            for index in episode_indices_to_download:
-                episode = episodes[index]
-                download.download(episode.media_href, os.getcwd())
-                episode.downloaded = True
-                FileStorage().save_podcast(podcast)
+            if episode_indices_to_download[-1] < len(podcast.episodes):
+                episodes = [podcast.episodes[i] for i in episode_indices_to_download]
+            else:
+                last = episode_indices_to_download[-1]
+                sys.exit('\n'.join([
+                    "The podcast does not have an episode with index '%d'." % last,
+                    "",
+                    "The valid range is: [%d, %d]" % (0, len(podcast.episodes) - 1),
+                ]))
         else:
-            for podcast in FileStorage().get_podcasts().values():
-                for episode in podcast.episodes:
-                    download.download(episode.media_href, os.getcwd())
+            episodes = chain.from_iterable(
+                podcast.episodes for podcast in podcasts.values())
+        for episode in episodes:
+            download.download(episode.media_href, os.getcwd())
+            episode.downloaded = True
+            FileStorage().save_podcast(episode.podcast)
 
     @staticmethod
     def get_indices(string):
