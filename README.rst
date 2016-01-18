@@ -29,6 +29,26 @@ Example commands (still work-in-progess)::
     $ riley download
     ... downloads the last episode ...
 
+List latest episodes::
+
+    $ riley list | head
+
+Browse episodes::
+
+    $ riley list | less
+
+List downloaded episodes::
+
+    $ ls ~/Music/Riley
+
+List downloaded episodes ordered by publish date::
+
+    $ ls -ltr ~/Music/Riley
+
+Listen to the oldest episode among your downloaded episodes::
+
+    $ cd ~/Music/Riley && mpv "`ls -tr | head -n 1`"
+
 Clean config
 ============
 
