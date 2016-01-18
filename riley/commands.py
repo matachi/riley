@@ -126,7 +126,9 @@ class DownloadEpisodes(BaseCommand):
             help='episodes to download')
 
     def handle(self, podcast_name, episode_ranges):
-        podcasts = FileStorage().get_podcasts()
+        file_storage = FileStorage()
+
+        podcasts = file_storage.get_podcasts()
         if podcast_name is not None:
             episode_indices_to_download = self.get_indices(episode_ranges)
             if podcast_name in podcasts:
@@ -153,8 +155,10 @@ class DownloadEpisodes(BaseCommand):
         else:
             episodes = chain.from_iterable(
                 podcast.episodes for podcast in podcasts.values())
+
+        download_directory = file_storage.get_config()['storage']
         for episode in episodes:
-            download.download(episode.media_href, os.getcwd())
+            download.download(episode.media_href, download_directory)
             episode.downloaded = True
             FileStorage().save_podcast(episode.podcast)
 

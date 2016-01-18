@@ -7,6 +7,7 @@ import requests
 
 
 def download(url, to_dir):
+    os.makedirs(to_dir)
     response = requests.get(url, stream=True)
     save_path = os.path.join(to_dir, get_file_name(response))
     with open(save_path, 'wb') as f:

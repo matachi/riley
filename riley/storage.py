@@ -68,7 +68,7 @@ class FileStorage(AbstractFileStorage, Storage):
     def _init_config_file(config_file_path):
         os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
         init_data = OrderedDict([
-            ('storage', os.path.join(expanduser("~"), 'Videos', 'Riley')),
+            ('storage', os.path.join(expanduser("~"), 'Music', 'Riley')),
             ('podcasts', {}),
         ])
         with open(config_file_path, 'w') as f:

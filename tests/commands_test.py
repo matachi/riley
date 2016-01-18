@@ -38,7 +38,7 @@ def test_insert(tmpdir, monkeypatch):
     monkeypatch.setattr('riley.storage.expanduser', lambda _: '/home/user')
     Insert().handle('yolo', 'leet')
     assert tmpdir.join('config.yml').read() == \
-           'storage: /home/user/Videos/Riley\npodcasts:\n  yolo: leet\n'
+           'storage: /home/user/Music/Riley\npodcasts:\n  yolo: leet\n'
 
 
 def test_list_episodes(capsys, tmpdir, monkeypatch):
@@ -173,8 +173,11 @@ def test_fetch_feed_without_links(monkeypatch):
 
 
 def test_download_episodes(tmpdir, monkeypatch):
-    config = """podcasts:
-    kalle: http://anka.se"""
+    config = '\n'.join([
+        'storage: ~/downloads',
+        'podcasts:',
+        '  kalle: http://anka.se',
+    ])
     history = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
 
@@ -191,7 +194,7 @@ abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
     DownloadEpisodes().handle('kalle', '0')
 
     assert download_class_mock.download.call_args_list == [
-        call('jkl', os.getcwd()),
+        call('jkl', '~/downloads'),
     ]
     expected_read = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,True\n"""
