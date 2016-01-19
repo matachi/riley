@@ -47,7 +47,7 @@ List downloaded episodes ordered by publish date::
 
 Listen to the oldest episode among your downloaded episodes::
 
-    $ cd ~/Music/Riley && mpv "`ls -tr | head -n 1`"
+    $ mpv "`ls -tr $PWD/Music/Riley/* | head -n 1`"
 
 Clean config
 ============
