@@ -94,8 +94,20 @@ class ListEpisodes(BaseCommand):
 class FetchEpisodes(BaseCommand):
     help = 'Fetch episodes.'
 
-    def handle(self):
-        for podcast in FileStorage().get_podcasts().values():
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'podcast_name', metavar='podcast', type=str, nargs='?',
+            help='podcast name')
+
+    def handle(self, podcast_name=None):
+        file_storage = FileStorage()
+
+        if podcast_name is None:
+            podcasts = file_storage.get_podcasts().values()
+        else:
+            podcasts = [file_storage.get_podcasts()[podcast_name]]
+
+        for podcast in podcasts:
             feed = feedparser.parse(podcast.feed)
             episodes = []
             for entry in feed.entries:
