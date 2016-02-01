@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from collections import OrderedDict
 from itertools import chain
 
 import feedparser
@@ -131,39 +132,60 @@ class DownloadEpisodes(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'podcast_name', metavar='podcast', type=str, nargs='?',
-            help='podcast name')
-        parser.add_argument(
-            'episode_ranges', metavar='episodes', type=str, nargs='?',
-            help='episodes to download')
+            'podcasts_and_episodes', metavar='podcasts and episodes',
+            type=str, nargs='*',
+            help='podcast name followed by an episode range; this pattern can '
+                 'be repeated multiple times')
 
-    def handle(self, podcast_name, episode_ranges):
+    def handle(self, podcasts_and_episodes):
         file_storage = FileStorage()
-
         podcasts = file_storage.get_podcasts()
-        if podcast_name is not None:
-            episode_indices_to_download = self.get_indices(episode_ranges)
-            if podcast_name in podcasts:
-                podcast = podcasts[podcast_name]
-            else:
-                list_of_podcasts = '\n'.join(
-                    '* %s' % name for name in podcasts.keys())
-                sys.exit('\n'.join([
-                    "A podcast with the name '%s' does not exist." % podcast_name,
-                    "",
-                    "Try one of these instead:",
-                    "",
-                    list_of_podcasts
-                ]))
-            if episode_indices_to_download[-1] < len(podcast.episodes):
-                episodes = [podcast.episodes[i] for i in episode_indices_to_download]
-            else:
-                last = episode_indices_to_download[-1]
-                sys.exit('\n'.join([
-                    "The podcast does not have an episode with index '%d'." % last,
-                    "",
-                    "The valid range is: [%d, %d]" % (0, len(podcast.episodes) - 1),
-                ]))
+
+        podcasts_and_episodes_to_download = OrderedDict()
+        podcast = None
+        for string in podcasts_and_episodes:
+            if podcast is not None:
+                episode_ranges = string
+                try:
+                    episode_indices_to_download = self.get_indices(
+                        episode_ranges)
+                except ValueError:
+                    episodes = podcast.episodes
+                    podcasts_and_episodes_to_download[podcast] = episodes
+                    podcast = None
+                else:
+                    if episode_indices_to_download[-1] < len(podcast.episodes):
+                        episodes = [podcast.episodes[i] for i in
+                                    episode_indices_to_download]
+                        podcasts_and_episodes_to_download[podcast] = episodes
+                        podcast = None
+                        continue
+                    else:
+                        last = episode_indices_to_download[-1]
+                        sys.exit('\n'.join([
+                            "The podcast does not have an episode with index '%d'." % last,
+                            "",
+                            "The valid range is: [%d, %d]" % (0, len(podcast.episodes) - 1),
+                            ]))
+            if podcast is None:
+                podcast_name = string
+                if podcast_name in podcasts:
+                    podcast = podcasts[podcast_name]
+                    podcasts_and_episodes_to_download[podcast] = None
+                else:
+                    list_of_podcasts = '\n'.join(
+                        '* %s' % name for name in podcasts.keys())
+                    sys.exit('\n'.join([
+                        "A podcast with the name '%s' does not exist." % podcast_name,
+                        "",
+                        "Try one of these instead:",
+                        "",
+                        list_of_podcasts
+                    ]))
+
+        if len(podcasts_and_episodes_to_download) > 0:
+            episodes = chain.from_iterable(
+                podcasts_and_episodes_to_download.values())
         else:
             episodes = chain.from_iterable(
                 podcast.episodes for podcast in podcasts.values())
@@ -187,6 +209,10 @@ class DownloadEpisodes(BaseCommand):
         [1, 3, 4, 5, 7]
         >>> DownloadEpisodes.get_indices('1,7,1-2,1-3')
         [1, 2, 3, 7]
+        >>> DownloadEpisodes.get_indices('test')
+        Traceback (most recent call last):
+        ...
+        ValueError: Invalid range.
 
         :param str string: Sring with elements.
         :return: List of indices.
@@ -200,4 +226,6 @@ class DownloadEpisodes(BaseCommand):
             elif '-' in element:
                 start, finish = map(int, element.split('-'))
                 episode_indices_to_download.update(range(start, finish + 1))
+            else:
+                raise ValueError('Invalid range.')
         return list(episode_indices_to_download)

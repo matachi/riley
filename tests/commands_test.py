@@ -195,7 +195,7 @@ abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
     download_class_mock = MagicMock()
     monkeypatch.setattr('riley.commands.download', download_class_mock)
 
-    DownloadEpisodes().handle('kalle', '0')
+    DownloadEpisodes().handle(['kalle', '0'])
 
     assert download_class_mock.download.call_args_list == [
         call(
@@ -214,7 +214,7 @@ def test_download_invalid_podcast(monkeypatch):
     monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
 
     with raises(SystemExit) as exception:
-        DownloadEpisodes().handle('kalle', '0')
+        DownloadEpisodes().handle(['kalle', '0'])
 
     assert re.compile(
         "A podcast with the name 'kalle' does not exist..*"
@@ -231,7 +231,7 @@ def test_download_invalid_episodes(monkeypatch):
     monkeypatch.setattr('riley.commands.FileStorage', file_storage_mock)
 
     with raises(SystemExit) as exception:
-        DownloadEpisodes().handle('kalle', '4')
+        DownloadEpisodes().handle(['kalle', '4'])
 
     assert exception.value.code == \
        "The podcast does not have an episode with index '4'.\n" \
