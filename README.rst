@@ -49,6 +49,11 @@ Listen to the oldest episode among your downloaded episodes::
 
     $ mpv "`ls -tr $PWD/Music/Riley/* | head -n 1`"
 
+Listen to the oldest episode among your downloaded episodes and delete it
+afterwards::
+
+    $ FILE=$(ls -tr $PWD/Music/Riley/* | head -n 1); mpv $FILE && rm -i $FILE
+
 Clean config
 ============
 
