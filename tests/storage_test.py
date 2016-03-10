@@ -1,5 +1,6 @@
 import re
 from time import strptime, struct_time
+from unittest.mock import MagicMock
 
 from riley.models import Podcast, Episode
 from riley.storage import FileStorage, FileEpisodeStorage
@@ -57,3 +58,22 @@ def test_save_podcast(tmpdir, monkeypatch):
     assert history_path.read() == \
         'guid,title,link,media_href,published,downloaded\n' \
         '1,2,3,4,2015-11-12 01:02:03,6\n'
+
+
+def test_dont_save_podcast_if_not_modified(tmpdir, monkeypatch):
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+
+    podcast = Podcast('abc', 'def', MagicMock())
+
+    file_storage = FileStorage()
+    save_config_data = MagicMock(side_effect=file_storage._save_config_data)
+    file_storage._save_config_data = save_config_data
+
+    file_storage.save_podcast(podcast)
+    # Wrote the podcats to disc
+    assert file_storage._save_config_data.call_count == 1
+
+    file_storage.save_podcast(podcast)
+    # Since the podcast hasn't been modified it wasn't rewritten to disc
+    assert file_storage._save_config_data.call_count == 1

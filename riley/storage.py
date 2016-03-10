@@ -98,7 +98,7 @@ class FileStorage(AbstractFileStorage, Storage):
 
     def save_podcast(self, podcast):
         config_data = self.get_config()
-        if podcast not in config_data or podcast.modified:
+        if podcast.name not in config_data['podcasts'] or podcast.modified:
             config_data['podcasts'][podcast.name] = podcast.feed
             self._save_config_data(config_data)
             podcast.modified = False
