@@ -90,3 +90,23 @@ def test_podcast_and_episode():
     assert not episodes[0].modified
     assert not episodes[1].modified
     assert not episodes[2].modified
+
+
+def test_calculate_time_based_score():
+    podcast = Podcast('name', 'feed', DummyEpisodeStorage())
+    episode = Episode(podcast, 0, "a", "b", "c", '2016-03-03 10:00:00', False)
+    score = episode.score
+    episode.published = '2016-03-04 10:00:00'
+    new_score = episode.score
+    assert new_score - score == 1
+    score = episode.score
+    episode.published = '2016-04-04 11:00:00'
+    new_score = episode.score
+    assert new_score - score == 31
+
+
+def test_score_already_downloaded_episode():
+    podcast = Podcast('name', 'feed', DummyEpisodeStorage())
+    episode = Episode(podcast, 0, "a", "b", "c", '2016-03-03 10:00:00', True)
+    score = episode.score
+    assert score == 0

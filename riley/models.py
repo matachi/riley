@@ -56,13 +56,29 @@ class Episode(HasBeenModified):
         self.title = title
         self.link = link
         self.media_href = media_href
-        if isinstance(published, time.struct_time):
-            self.published = published
-        elif isinstance(published, str):
-            self.published = time.strptime(published, '%Y-%m-%d %H:%M:%S')
+        self.published = published
+        self.downloaded = downloaded
+
+    @property
+    def published(self):
+        return self._published
+
+    @published.setter
+    def published(self, value):
+        if hasattr(self, '_published'):
+            self._published = None
+        if isinstance(value, time.struct_time):
+            self._published = value
+        elif isinstance(value, str):
+            self._published = time.strptime(value, '%Y-%m-%d %H:%M:%S')
         else:
             raise TypeError
-        self.downloaded = downloaded
+
+    @property
+    def score(self):
+        if self.downloaded:
+            return 0
+        return time.mktime(self.published) / 60 / 60 / 24
 
     @classmethod
     def from_tuple(cls, podcast, tuple):
