@@ -9,6 +9,11 @@ from clint.textui.progress import Bar
 
 
 def download(url, to_dir, datetime=None):
+    """
+    :type url: str
+    :type to_dir: str
+    :type datetime: time.struct_time
+    """
     os.makedirs(to_dir, exist_ok=True)
     response = requests.get(url, stream=True)
     save_path = os.path.join(to_dir, get_file_name(response))
@@ -27,11 +32,18 @@ def download(url, to_dir, datetime=None):
 
 
 def _download(response):
+    """
+    :type response: requests.Response
+    """
     for i, block in enumerate(response.iter_content(1024), 1):
         yield block
 
 
 def _download_with_progressbar(response, content_length):
+    """
+    :type response: requests.Response
+    :type content_length: int
+    """
     with Bar(expected_size=content_length) as bar:
         for i, block in enumerate(response.iter_content(1024), 1):
             yield block
@@ -39,6 +51,10 @@ def _download_with_progressbar(response, content_length):
 
 
 def get_file_name(response):
+    """
+    :type response: requests.Response
+    :rtype: str
+    """
     if 'Content-Disposition' in response.headers:
         _value, params = cgi.parse_header(
             response.headers['Content-Disposition'])
