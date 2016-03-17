@@ -24,3 +24,12 @@ def test_get_file_name_from_redirected_url():
     response = MagicMock()
     response.url = 'http://hwcdn.libsyn.com/p/9/5/4/954c927f0cde7060/TFK.246_-_1999.mp3?c_id=10199983&expiration=1447188914&hwt=e02ddd7a1b52bb9104bdcd864a5ace36'
     assert get_file_name(response) == 'TFK.246_-_1999.mp3'
+
+
+def test_prefer_name_from_headers():
+    response = MagicMock()
+    response.headers = {}
+    response.url = 'http://example.com/abc.mp3'
+    assert get_file_name(response) == 'abc.mp3'
+    response.headers = {'Content-Disposition': 'attachment;filename="def.mp3"'}
+    assert get_file_name(response) == 'def.mp3'
