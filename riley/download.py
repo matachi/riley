@@ -1,6 +1,7 @@
 import cgi
 import os
 import time
+from functools import partial
 from urllib.parse import urlparse
 
 import requests
@@ -12,14 +13,29 @@ def download(url, to_dir, datetime=None):
     response = requests.get(url, stream=True)
     save_path = os.path.join(to_dir, get_file_name(response))
     with open(save_path, 'wb') as f:
-        total_length = int(response.headers.get('content-length'))
-        with Bar(expected_size=total_length) as bar:
-            for i, block in enumerate(response.iter_content(1024), 1):
-                f.write(block)
-                bar.show(min(i * 1024, total_length))
+        content_length = response.headers.get('content-length')
+        if content_length is None:
+            download = partial(_download, response)
+        else:
+            length = int(content_length)
+            download = partial(_download_with_progressbar, response, length)
+        for block in download():
+            f.write(block)
     if datetime is not None:
         unix_timestamp = int(time.mktime(datetime))
         os.utime(save_path, (unix_timestamp, unix_timestamp))
+
+
+def _download(response):
+    for i, block in enumerate(response.iter_content(1024), 1):
+        yield block
+
+
+def _download_with_progressbar(response, content_length):
+    with Bar(expected_size=content_length) as bar:
+        for i, block in enumerate(response.iter_content(1024), 1):
+            yield block
+            bar.show(min(i * 1024, content_length))
 
 
 def get_file_name(response):

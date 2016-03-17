@@ -1,5 +1,7 @@
+import os
+import time
 from unittest.mock import MagicMock
-from riley.download import get_file_name
+from riley.download import get_file_name, download
 
 
 def test_get_file_name_from_header():
@@ -33,3 +35,28 @@ def test_prefer_name_from_headers():
     assert get_file_name(response) == 'abc.mp3'
     response.headers = {'Content-Disposition': 'attachment;filename="def.mp3"'}
     assert get_file_name(response) == 'def.mp3'
+
+
+def dummy_download(*args):
+    for b in [b'a', b'b', b'c']:
+        yield b
+
+
+def test_download_url(tmpdir, monkeypatch):
+    monkeypatch.setattr('riley.download._download', dummy_download)
+
+    response = MagicMock()
+    response.url = 'http://example.com/123.mp3'
+    response.headers.get.return_value = None
+    # The header 'content-length' is missing, which was the case with
+    # http://www.linuxvoice.com/podcast_opus.rss
+    monkeypatch.setattr(
+        'riley.download.requests.get', lambda x, stream: response)
+
+    time_struct = time.strptime('2015-11-12 01:02:03', '%Y-%m-%d %H:%M:%S')
+
+    download(response.url, tmpdir.strpath, time_struct)
+
+    file = tmpdir.join('123.mp3')
+    assert file.read() == 'abc'
+    assert os.stat(file.strpath).st_mtime == time.mktime(time_struct)
