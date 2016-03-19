@@ -57,7 +57,7 @@ class Episode(HasBeenModified):
         self.link = link
         self.media_href = media_href
         self.published = published
-        self.downloaded = downloaded
+        self.downloaded = self.to_bool(downloaded)
 
     @property
     def published(self):
@@ -91,8 +91,19 @@ class Episode(HasBeenModified):
             self.link,
             self.media_href,
             time.strftime('%Y-%m-%d %H:%M:%S', self.published),
-            self.downloaded
+            str(self.downloaded),
         ]
 
     def modified_attr(self, key, value):
         self.podcast.episodes.modified = True
+
+    @staticmethod
+    def to_bool(value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            if value == str(True):
+                return True
+            elif value == str(False):
+                return False
+        raise ValueError("Could not convert {} to bool.".format(value))
