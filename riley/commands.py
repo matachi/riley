@@ -1,4 +1,5 @@
 import argparse
+import heapq
 import os
 import sys
 from collections import OrderedDict
@@ -229,3 +230,32 @@ class DownloadEpisodes(BaseCommand):
             else:
                 raise ValueError('Invalid range.')
         return list(episode_indices_to_download)
+
+
+class DownloadBest(BaseCommand):
+    help = 'Download the best and latest episodes.'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'number_of_episodes', metavar='number of episodes', type=int,
+            help='the number of episodes')
+
+    def handle(self, number_of_episodes):
+        file_storage = FileStorage()
+        podcasts = file_storage.get_podcasts()
+
+        episodes = []
+        for podcast in podcasts.values():
+            episodes.extend(podcast.episodes)
+
+        episodes = heapq.nlargest(
+            number_of_episodes, episodes, key=lambda e: e.score)
+
+        download_directory = file_storage.get_config()['storage']
+        for episode in episodes:
+            print("Downloading '{}' from '{}'.".format(
+                episode.title, episode.podcast.name))
+            download.download(episode.media_href, download_directory,
+                              episode.published)
+            episode.downloaded = True
+            FileStorage().save_podcast(episode.podcast)

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, call
 
 from pytest import raises
 from riley.commands import WhereIsConfig, DownloadEpisodes, ListPodcasts, \
-    Insert, ListEpisodes, FetchEpisodes
+    Insert, ListEpisodes, FetchEpisodes, DownloadBest
 
 
 def test_where_is_config(capsys, monkeypatch):
@@ -237,3 +237,50 @@ def test_download_invalid_episodes(monkeypatch):
        "The podcast does not have an episode with index '4'.\n" \
        "\n" \
        "The valid range is: [0, 3]"
+
+
+def test_download_best_episodes(tmpdir, monkeypatch):
+    config = '\n'.join([
+        'storage: ~/downloads',
+        'podcasts:',
+        '  kalle: http://kalle.se',
+        '  anka: http://anka.se',
+    ])
+    kalle_history = """guid,title,link,media_href,published,downloaded
+a,a,a,a,2014-12-12 10:00:00,False
+b,b,b,b,2012-12-12 10:00:00,False
+c,c,c,c,2013-12-12 10:00:00,False"""
+    anka_history = """guid,title,link,media_href,published,downloaded
+d,d,d,d,2014-12-13 10:00:00,False
+e,e,e,e,2012-12-13 10:00:00,False
+f,f,f,f,2013-12-13 10:00:00,False"""
+
+    config_path = tmpdir.join('config.yml')
+    config_path.write(config)
+    tmpdir.join('kalle_history.csv').write(kalle_history)
+    tmpdir.join('anka_history.csv').write(anka_history)
+    monkeypatch.setattr(
+        'riley.storage.user_data_dir', lambda x, y: tmpdir.strpath)
+
+    download_class_mock = MagicMock()
+    monkeypatch.setattr('riley.commands.download', download_class_mock)
+
+    DownloadBest().handle(3)
+
+    assert download_class_mock.download.call_args_list == [
+        call(
+            'd',
+            '~/downloads',
+            time.strptime('2014-12-13 10:00:00', '%Y-%m-%d %H:%M:%S')
+        ),
+        call(
+            'a',
+            '~/downloads',
+            time.strptime('2014-12-12 10:00:00', '%Y-%m-%d %H:%M:%S')
+        ),
+        call(
+            'f',
+            '~/downloads',
+            time.strptime('2013-12-13 10:00:00', '%Y-%m-%d %H:%M:%S')
+        ),
+    ]
