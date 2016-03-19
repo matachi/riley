@@ -1,3 +1,4 @@
+import math
 import time
 
 
@@ -17,6 +18,9 @@ class HasBeenModified:
 
 
 class Podcast(HasBeenModified):
+
+    score_const = 30 / math.log(6)
+
     def __init__(self, name, feed, episode_storage, priority=5):
         super(Podcast, self).__init__()
         self.name = name
@@ -31,6 +35,18 @@ class Podcast(HasBeenModified):
                 self._episode_storage.get_episodes(self))
             delattr(self, '_episode_storage')
         return self._episodes
+
+    @property
+    def score(self):
+        if hasattr(self, '_score'):
+            return self._score
+        if self.priority > 5:
+            self._score = math.log(self.priority - 4) * self.score_const
+        elif self.priority < 5:
+            self._score = -math.log(abs(self.priority - 6)) * self.score_const
+        else:
+            self._score = 0
+        return self.score
 
 
 class EpisodeList(list, HasBeenModified):
@@ -79,7 +95,9 @@ class Episode(HasBeenModified):
     def score(self):
         if self.downloaded:
             return 0
-        return time.mktime(self.published) / 60 / 60 / 24
+        episode_score = time.mktime(self.published) / 60 / 60 / 24
+        podcast_score = self.podcast.score
+        return episode_score + podcast_score
 
     @classmethod
     def from_tuple(cls, podcast, tuple):

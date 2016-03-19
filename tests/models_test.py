@@ -110,3 +110,22 @@ def test_score_already_downloaded_episode():
     episode = Episode(podcast, 0, "a", "b", "c", '2016-03-03 10:00:00', True)
     score = episode.score
     assert score == 0
+
+
+def test_score_podcast_priority():
+    ep_storage = DummyEpisodeStorage()
+
+    p1 = Podcast('name', 'feed', ep_storage)
+    e1 = Episode(p1, 1, 'a', 'b', 'c', '2016-03-15 00:00:00', False)
+    e2 = Episode(p1, 2, 'a', 'b', 'c', '2016-03-30 00:00:00', False)
+    assert p1.priority == 5
+
+    p2 = Podcast('name', 'feed', ep_storage, 6)
+    e3 = Episode(p2, 3, 'a', 'b', 'c', '2016-03-20 00:00:00', False)
+
+    assert p2.score > p1.score
+    # The second podcast has higher rank
+    assert e2.published > e3.published > e1.published
+    # Episode 3 was published between 2 and 1
+    assert e3.score > e2.score > e1.score
+    # Episode 3 still gets a higher score due to its podcast's score
