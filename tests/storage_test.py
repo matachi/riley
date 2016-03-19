@@ -10,7 +10,7 @@ config = """podcasts:
 
 
 history = """guid,title,link,media_href,published,downloaded
-abc,def,ghi,jkl,2012-12-12 12:12:12,mno"""
+abc,def,ghi,jkl,2012-12-12 12:12:12,True"""
 
 
 def test_file_storage(tmpdir, monkeypatch):
@@ -37,7 +37,7 @@ def test_file_storage(tmpdir, monkeypatch):
     assert episode.media_href == 'jkl'
     assert episode.published == struct_time((
         2012, 12, 12, 12, 12, 12, 2, 347, -1))
-    assert episode.downloaded == 'mno'
+    assert episode.downloaded == True
 
 
 def test_save_podcast(tmpdir, monkeypatch):
@@ -48,7 +48,7 @@ def test_save_podcast(tmpdir, monkeypatch):
     podcast = Podcast('abc', 'def', FileEpisodeStorage())
     podcast.episodes.append(Episode(
         podcast, 1, 2, 3, 4,
-        strptime('2015-11-12 01:02:03', '%Y-%m-%d %H:%M:%S'), 6))
+        strptime('2015-11-12 01:02:03', '%Y-%m-%d %H:%M:%S'), True))
 
     file_storage.save_podcast(podcast)
 
@@ -57,7 +57,7 @@ def test_save_podcast(tmpdir, monkeypatch):
     history_path = tmpdir.join('abc_history.csv')
     assert history_path.read() == \
         'guid,title,link,media_href,published,downloaded\n' \
-        '1,2,3,4,2015-11-12 01:02:03,6\n'
+        '1,2,3,4,2015-11-12 01:02:03,True\n'
 
 
 def test_dont_save_podcast_if_not_modified(tmpdir, monkeypatch):

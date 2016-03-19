@@ -45,7 +45,7 @@ def test_list_episodes(capsys, tmpdir, monkeypatch):
     config = """podcasts:
     kalle: http://anka.se"""
     history = """guid,title,link,media_href,published,downloaded
-abc,def,ghi,jkl,2012-12-12 10:10:10,mno"""
+abc,def,ghi,jkl,2012-12-12 10:10:10,True"""
 
     config_path = tmpdir.join('config.yml')
     config_path.write(config)
