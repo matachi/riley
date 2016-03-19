@@ -93,13 +93,17 @@ class FileStorage(AbstractFileStorage, Storage):
     def get_podcasts(self):
         file_episode_storage = FileEpisodeStorage()
         return OrderedDict(
-            (name, Podcast(name, feed, file_episode_storage))
-            for name, feed in self.get_config()['podcasts'].items())
+            (name, Podcast(name, dict_['feed'], file_episode_storage,
+                           dict_['priority']))
+            for name, dict_ in self.get_config()['podcasts'].items())
 
     def save_podcast(self, podcast):
         config_data = self.get_config()
         if podcast.name not in config_data['podcasts'] or podcast.modified:
-            config_data['podcasts'][podcast.name] = podcast.feed
+            config_data['podcasts'][podcast.name] = OrderedDict([
+                ('feed', podcast.feed),
+                ('priority', podcast.priority),
+            ])
             self._save_config_data(config_data)
             podcast.modified = False
         if podcast.episodes.modified:

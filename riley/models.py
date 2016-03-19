@@ -17,10 +17,11 @@ class HasBeenModified:
 
 
 class Podcast(HasBeenModified):
-    def __init__(self, name, feed, episode_storage):
+    def __init__(self, name, feed, episode_storage, priority=5):
         super(Podcast, self).__init__()
         self.name = name
         self.feed = feed
+        self.priority = priority
         self._episode_storage = episode_storage
 
     @property

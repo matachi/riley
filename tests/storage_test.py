@@ -1,12 +1,14 @@
-import re
 from time import strptime, struct_time
 from unittest.mock import MagicMock
 
+import yaml
 from riley.models import Podcast, Episode
 from riley.storage import FileStorage, FileEpisodeStorage
 
 config = """podcasts:
-    kalle: http://anka.se"""
+    kalle:
+        feed: http://anka.se
+        priority: 5"""
 
 
 history = """guid,title,link,media_href,published,downloaded
@@ -29,6 +31,7 @@ def test_file_storage(tmpdir, monkeypatch):
     podcast = podcasts['kalle']
     assert podcast.name == 'kalle'
     assert podcast.feed == 'http://anka.se'
+    assert podcast.priority == 5
     assert len(podcast.episodes) == 1
     episode = podcast.episodes[0]
     assert episode.guid == 'abc'
@@ -53,7 +56,9 @@ def test_save_podcast(tmpdir, monkeypatch):
     file_storage.save_podcast(podcast)
 
     config_path = tmpdir.join('config.yml')
-    assert re.compile('.*podcasts:\n  abc: def\n').search(config_path.read())
+    data = yaml.load(config_path.read())
+    assert len(data) == 2
+    assert data['podcasts'] == {'abc': {'feed': 'def', 'priority': 5}}
     history_path = tmpdir.join('abc_history.csv')
     assert history_path.read() == \
         'guid,title,link,media_href,published,downloaded\n' \

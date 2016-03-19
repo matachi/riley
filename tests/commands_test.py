@@ -19,8 +19,12 @@ def test_where_is_config(capsys, monkeypatch):
 
 def test_list_podcasts(capsys, tmpdir, monkeypatch):
     config = """podcasts:
-    kalle: http://anka.se
-    banka: http://example.com"""
+    kalle:
+        feed: http://anka.se
+        priority: 5
+    banka:
+        feed: http://example.com
+        priority: 5"""
     config_path = tmpdir.join('config.yml')
     config_path.write(config)
 
@@ -38,12 +42,14 @@ def test_insert(tmpdir, monkeypatch):
     monkeypatch.setattr('riley.storage.expanduser', lambda _: '/home/user')
     Insert().handle('yolo', 'leet')
     assert tmpdir.join('config.yml').read() == \
-           'storage: /home/user/Music/Riley\npodcasts:\n  yolo: leet\n'
+           'storage: /home/user/Music/Riley\npodcasts:\n  yolo:\n    feed: leet\n    priority: 5\n'
 
 
 def test_list_episodes(capsys, tmpdir, monkeypatch):
     config = """podcasts:
-    kalle: http://anka.se"""
+    kalle:
+        feed: http://anka.se
+        priority: 5"""
     history = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,True"""
 
@@ -80,7 +86,9 @@ def test_fetch_episodes(tmpdir, monkeypatch):
 
     # Prepare config files
     config = """podcasts:
-    kalle: http://anka.se"""
+    kalle:
+        feed: http://anka.se
+        priority: 5"""
     config_path = tmpdir.join('config.yml')
     config_path.write(config)
     # Insert one of the episodes into the history file
@@ -180,7 +188,9 @@ def test_download_episodes(tmpdir, monkeypatch):
     config = '\n'.join([
         'storage: ~/downloads',
         'podcasts:',
-        '  kalle: http://anka.se',
+        '  kalle:',
+        '    feed: http://anka.se',
+        '    priority: 5',
     ])
     history = """guid,title,link,media_href,published,downloaded
 abc,def,ghi,jkl,2012-12-12 10:10:10,False"""
@@ -243,8 +253,12 @@ def test_download_best_episodes(tmpdir, monkeypatch):
     config = '\n'.join([
         'storage: ~/downloads',
         'podcasts:',
-        '  kalle: http://kalle.se',
-        '  anka: http://anka.se',
+        '    kalle:',
+        '        feed: http://kalle.se',
+        '        priority: 5',
+        '    anka:',
+        '        feed: http://anka.se',
+        '        priority: 5',
     ])
     kalle_history = """guid,title,link,media_href,published,downloaded
 a,a,a,a,2014-12-12 10:00:00,False
