@@ -58,7 +58,8 @@ def get_file_name(response):
     if 'Content-Disposition' in response.headers:
         _value, params = cgi.parse_header(
             response.headers['Content-Disposition'])
-        return params['filename']
+        if 'filename' in params:
+            return params['filename']
     # Delete query junk from end of the the URL
     path = urlparse(response.url)[2]
     # Only keep the name

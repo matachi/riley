@@ -12,6 +12,15 @@ def test_get_file_name_from_header():
     assert get_file_name(response) == '2015-11-10.mp3'
 
 
+def test_get_file_name_when_content_disposition_filename_is_missing():
+    # Example of a feed with such files:
+    # http://feeds.wnyc.org/radiolab?format=xml
+    response = MagicMock()
+    response.headers = {'Content-Disposition': 'attachment'}
+    response.url = 'http://feeds.wnyc.org/~r/radiolab/~5/KYQG_JtkTYM/radiolab_podcast16cellmates.mp3'
+    assert get_file_name(response) == 'radiolab_podcast16cellmates.mp3'
+
+
 def test_get_file_name_from_url():
     # The filename is not among the headers, here is a feed fith such examples:
     # http://tackforkaffet.libsyn.com/rss
