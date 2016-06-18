@@ -1,10 +1,11 @@
-from collections import OrderedDict
 import csv
 import os
+from collections import OrderedDict
+from operator import attrgetter
 from os.path import expanduser
 
-from appdirs import user_data_dir
 import yaml
+from appdirs import user_data_dir
 from riley.models import Podcast, Episode
 
 
@@ -117,26 +118,24 @@ class FileEpisodeStorage(AbstractFileStorage, EpisodeStorage):
         return os.path.join(
             self._user_data_dir_path, '%s_history.csv' % podcast.name)
 
-    def _init_episode_history_file(self, podcast):
-        with open(self._get_episode_history_file_path(podcast), 'w') as f:
-            writer = csv.writer(f)
-            writer.writerow(Episode.columns)
-
     def get_episodes(self, podcast):
         path = self._get_episode_history_file_path(podcast)
         if not os.path.exists(path):
-            self._init_episode_history_file(podcast)
-        with open(path) as f:
-            reader = csv.reader(f)
-            episodes = [
-                Episode.from_tuple(podcast, e) for e in list(reader)[1:]]
-            episodes.sort(key=lambda e: e.published, reverse=True)
+            return []
+        with open(path, newline='') as f:
+            rows = list(csv.reader(f))
+            has_header = len(rows) > 0 and rows[0] == Episode.columns
+            if has_header:
+                rows = rows[1:]
+            episodes = reversed([Episode.from_tuple(podcast, e) for e in rows])
             return episodes
 
     def save_episodes(self, podcast):
-        self._init_episode_history_file(podcast)
         path = self._get_episode_history_file_path(podcast)
-        with open(path, 'a') as f:
+        header = Episode.columns
+        rows = [e.str_attributes() for e in sorted(
+            podcast.episodes, key=attrgetter('published'))]
+        with open(path, 'w', newline='') as f:
             writer = csv.writer(f)
-            for e in podcast.episodes:
-                writer.writerow(e.str_attributes())
+            writer.writerow(header)
+            writer.writerows(rows)
