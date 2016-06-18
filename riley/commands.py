@@ -110,6 +110,7 @@ class FetchEpisodes(BaseCommand):
             podcasts = [file_storage.get_podcasts()[podcast_name]]
 
         for podcast in podcasts:
+            print(podcast.name)
             feed = feedparser.parse(podcast.feed)
             episodes = []
             for entry in feed.entries:
